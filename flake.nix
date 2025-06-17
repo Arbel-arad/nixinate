@@ -53,7 +53,7 @@
             '')
             else ''
               echo "🔨 Building system closure locally, copying it to remote store and activating it:"
-              ( set -x; NIX_SSHOPTS="-t" ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}${flakeArgs}#${machine} --target-host ${user}@${host} --use-remote-sudo ${optionalString substituteOnTarget "-s"} )
+              ( set -x; NIX_SSHOPTS="-t" ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}${flakeArgs}#${machine} --target-host ${user}@${host} --sudo --no-reexec ${optionalString substituteOnTarget "-s"} )
 
             ''));
         in {
@@ -64,14 +64,7 @@
                 machine = x;
                 dryRun = false;
               });
-            }) /*// inputs.nixpkgs.lib.genAttrs
-            (map (a: a + "-dry-run") validMachines) (x: {
-              type = "app";
-              program = toString (mkDeployScript {
-                machine = inputs.nixpkgs.lib.removeSuffix "-dry-run" x;
-                dryRun = true;
-              });
-            })*/
+            })
           );
         };
       };
