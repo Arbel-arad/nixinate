@@ -1,11 +1,30 @@
 {
   "nodes": {
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1751413152,
+        "narHash": "sha256-Tyw1RjYEsp5scoigs1384gIg6e0GoBVjms4aXFfRssQ=",
+        "ref": "refs/heads/main",
+        "rev": "77826244401ea9de6e3bac47c2db46005e1f30b5",
+        "shallow": true,
+        "type": "git",
+        "url": "https://forgejo.spacetime.technology/nix-mirrors/flake-parts"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://forgejo.spacetime.technology/nix-mirrors/flake-parts"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1743259260,
-        "narHash": "sha256-ArWLUgRm1tKHiqlhnymyVqi5kLNCK5ghvm06mfCl4QY=",
+        "lastModified": 1751382304,
+        "narHash": "sha256-p+UruOjULI5lV16FkBqkzqgFasLqfx0bihLBeFHiZAs=",
         "ref": "nixpkgs-unstable",
-        "rev": "eb0e0f21f15c559d2ac7633dc81d079d1caf5f5f",
+        "rev": "d31a91c9b3bee464d054633d5f8b84e17a637862",
         "shallow": true,
         "type": "git",
         "url": "https://forgejo.spacetime.technology/nix-mirrors/nixpkgs"
@@ -17,18 +36,34 @@
         "url": "https://forgejo.spacetime.technology/nix-mirrors/nixpkgs"
       }
     },
+    "nixpkgs-lib": {
+      "locked": {
+        "lastModified": 1751159883,
+        "narHash": "sha256-urW/Ylk9FIfvXfliA1ywh75yszAbiTEVgpPeinFyVZo=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "14a40a1d7fb9afa4739275ac642ed7301a9ba1ab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
         "system": "system"
       }
     },
     "system": {
       "locked": {
-        "lastModified": 1732204055,
-        "narHash": "sha256-mHtkcHm37MDme/NSxU7hFU8SxM9GaX5tjznWAWBCxc8=",
+        "lastModified": 1747686986,
+        "narHash": "sha256-4ogT+JYE74PT1cgG8IoBS4pRbLFED2tVFuOhvEbCGIE=",
         "ref": "refs/heads/master",
-        "rev": "19d677525610a6169835e353678bf463600489ac",
+        "rev": "1f203a65d40164d18f4ca64a664ad6e77f53a470",
         "shallow": true,
         "type": "git",
         "url": "https://forgejo.spacetime.technology/arbel/nix-system"
