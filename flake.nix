@@ -10,7 +10,11 @@
     flake = { lib, ... }: {
       lib = let
 
-        validMachines = flake: lib.remove "" (lib.forEach (builtins.attrNames flake.nixosConfigurations) (x: lib.optionalString (flake.nixosConfigurations."${x}"._module.args ? nixinate) "${x}" ));
+        validMachines = flake: lib.remove "" (lib.forEach (
+          builtins.attrNames flake.nixosConfigurations) (x:
+            lib.optionalString (flake.nixosConfigurations."${x}"._module.args ? nixinate) "nixinate-${x}"
+          )
+        );
 
         mkDeployScript = { pkgs, machine, flake, dryRun }: import ./mkDeployScript.nix {
           inherit pkgs lib machine flake dryRun;
@@ -20,7 +24,8 @@
         nixinate = { pkgs, flake }: lib.genAttrs (validMachines flake) (machine: {
           type = "app";
           program = mkDeployScript {
-            inherit pkgs machine flake;
+            inherit pkgs flake;
+            machine = builtins.substring 9 (-1) "${machine}";
             dryRun = false;
           };
           meta = {
