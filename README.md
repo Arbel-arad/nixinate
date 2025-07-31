@@ -7,38 +7,50 @@ schema](https://wiki.nixos.org/wiki/Flakes#Flake_schema).
 
 ## Usage
 
-To add and configure `nixinate` in your own flake, you need to:
+To use `nixinate` in your own flake, you need to:
 
-1. Add the result of `nixinate self` to the `apps` attribute of your flake.
-2. Add and configure `_module.args.nixinate` to the `nixosConfigurations` you want to deploy
+1. Add the result of `nixinate.lib.nixinate {}` to the `apps` attribute of your flake.
+2. Configure `_module.args.nixinate` for the `nixosConfigurations` you want to deploy
 
 Below is a minimal example:
 
 ```nix
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-    nixinate.url = "git+https://forgejo.spacetime.technology/arbel/nixinate?shallow=1";
+    nixpkgs.url = "git+https://forgejo.spacetime.technology/nix-mirrors/nixpkgs?ref=nixpkgs-unstable&shallow=1";
+    flake-parts.url = "git+https://forgejo.spacetime.technology/nix-mirrors/flake-parts?shallow=1";
+    nixinate = {
+      url = "git+https://forgejo.spacetime.technology/arbel/nixinate?shallow=1";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
   };
 
-  outputs = { self, nixpkgs, nixinate }: {
-    apps = nixinate.nixinate.x86_64-linux self;
-    nixosConfigurations = {
-      myMachine = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          (import ./my-configuration.nix)
-          {
-            _module.args.nixinate = {
-              host = "itchy.scratchy.com";
-              sshUser = "matthew";
-              buildOn = "remote"; # valid args are "local" or "remote"
-              substituteOnTarget = true; # if buildOn is "local" then it will substitute on the target, "-s"
-              hermetic = false;
-            };
-          }
-          # ... other configuration ...
-        ];
+  outputs = { self, ... }@inputs:
+  inputs.flake-parts.lib.mkFlake { inherit inputs self; } {
+    systems = [ "x86_64-linux" ];
+    perSystem = { pkgs, ... }: {
+      apps = { /* other apps */ } // inputs.nixinate.lib.nixinate { inherit pkgs; flake = self; };
+    };
+    flake = {
+      nixosConfigurations = {
+        myMachine = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            {
+              _module.args.nixinate = {
+                host = "itchy.scratchy.com";
+                sshUser = "matthew";
+                buildOn = "remote"; # valid args are "local" or "remote"
+                substituteOnTarget = true; # if buildOn is "local", substitute on target
+                hermetic = false;
+              };
+            }
+            # ... other configuration ...
+          ];
+        };
       };
     };
   };
@@ -46,24 +58,24 @@ Below is a minimal example:
 ```
 
 Each `nixosConfiguration` you have configured should have a deployment script in
-`apps.nixinate`, visible in `nix flake show` like this:
+`apps.${system}`, visible in `nix flake show` like this:
 
-```
+``` bash
 $ nix flake show
 git+file:///etc/nixos
 ├───apps
-│   └───nixinate
-│       └───myMachine: app
+│   └───x86_64-linux
+│        └───nixinate-myMachine: app: Deploy configuration on nixinate-myMachine
 └───nixosConfigurations
     └───myMachine: NixOS configuration
 ```
 
-To finally execute the deployment script, use `nix run .#apps.nixinate.myMachine`
+To finally execute the deployment script, use `nix run .#apps.nixinate-myMachine`
 
-#### Example Run
+### Example Run
 
-```
-[root@myMachine:/etc/nixos]# nix run .#apps.nixinate.myMachine
+``` bash
+[root@myMachine:/etc/nixos]# nix run .#apps.nixinate-myMachine
 🚀 Deploying nixosConfigurations.myMachine from /nix/store/279p8aaclmng8kc3mdmrmi6q3n76r1i7-source
 👤 SSH User: matthew
 🌐 SSH Host: itchy.scratchy.com
@@ -80,7 +92,7 @@ setting up tmpfiles
 Connection to itchy.scratchy.com closed.
 ```
 
-# Available arguments via `_module.args.nixinate`
+## Available arguments via `_module.args.nixinate`
 
 - `host` *`string`*
 
