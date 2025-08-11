@@ -26,14 +26,14 @@ in pkgs.writeShellScriptBin "deploy-${machine}.sh"
   '' + (if hermetic then ''
     echo "🤞 Activating configuration hermetically on ${machine} via ssh:"
     ( set -x; ${nix} ${nixOptions} copy --derivation ${nixos-rebuild} ${flock} --to ssh://${user}@${host} )
-    ( set -x; ${openssh} $NIX_SSHOPTS -t ${user}@${host} "sudo nix-store --realise ${nixos-rebuild} ${flock} && sudo ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}#${machine}${flakeArgs}" )
+    ( set -x; ${openssh} $NIX_SSHOPTS -t ${user}@${host} "sudo nix-store --realise ${nixos-rebuild} ${flock} && sudo ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}${flakeArgs}#${machine}" )
   '' else ''
     echo "🤞 Activating configuration non-hermetically on ${machine} via ssh:"
-    ( set -x; ${openssh} $NIX_SSHOPTS -t ${user}@${host} "sudo flock -w 60 /dev/shm/nixinate-${machine} nixos-rebuild ${switch} --flake ${flakePath}#${machine}${flakeArgs}" )
+    ( set -x; ${openssh} $NIX_SSHOPTS -t ${user}@${host} "sudo flock -w 60 /dev/shm/nixinate-${machine} nixos-rebuild ${switch} --flake ${flakePath}${flakeArgs}#${machine}" )
   '')
   else ''
     echo "🔨 Building system closure locally, copying it to remote store and activating it:"
-    ( set -x; NIX_SSHOPTS="-t" ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}#${machine}${flakeArgs} --target-host ${user}@${host} --sudo --no-reexec ${lib.optionalString substituteOnTarget "-s"} )
+    ( set -x; NIX_SSHOPTS="-t" ${flock} -w 60 /dev/shm/nixinate-${machine} ${nixos-rebuild} ${nixOptions} ${switch} --flake ${flakePath}${flakeArgs}#${machine} --target-host ${user}@${host} --sudo --no-reexec ${lib.optionalString substituteOnTarget "-s"} )
 
   ''))
 
